@@ -1,5 +1,5 @@
 {
-    "name": "tapp/laravel-aws-secrets-manager",
+    "name": "lqdigital/laravel-aws-secrets-manager",
     "description": "Use AWS Secrets manager to load environment variables for configuration.",
     "keywords": [
         "tapp",
