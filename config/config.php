@@ -111,4 +111,16 @@ return [
 
     'debug' => env('APP_DEBUG', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | AWS Credentials
+    |--------------------------------------------------------------------------
+    |
+    | AWS Credentials to access the secrets manager.
+    |
+    */
+    
+    'aws_key' => env('AWS_ACCESS_KEY_ID', null),
+    'aws_secret' => env('AWS_SECRET_ACCESS_KEY', null),
+
 ];

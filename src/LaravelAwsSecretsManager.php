@@ -3,6 +3,8 @@
 namespace Tapp\LaravelAwsSecretsManager;
 
 use Aws\SecretsManager\SecretsManagerClient;
+use Aws\Credentials\Credentials;
+use Aws\Credentials\CredentialProvider;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -17,10 +19,13 @@ class LaravelAwsSecretsManager
     protected $debug;
     protected $enabledEnvironments;
     protected $listTag;
+    protected $aws_key;
+    protected $aws_secret;
 
     public function __construct()
     {
         $this->listTagName = config('aws-secrets-manager.tag-name');
+
         $this->listTagValue = config('aws-secrets-manager.tag-value');
 
         $this->configVariables = config('aws-secrets-manager.variables-config');
@@ -36,6 +41,10 @@ class LaravelAwsSecretsManager
         $this->debug = config('aws-secrets-manager.debug', false);
 
         $this->keyRotation = config('aws-secrets-manager.key-rotation');
+
+        $this->aws_key = config('aws-secrets-manager.aws_key');
+
+        $this->aws_secret = config('aws-secrets-manager.aws_secret');
     }
 
     public function loadSecrets()
@@ -90,9 +99,12 @@ class LaravelAwsSecretsManager
     protected function getVariables()
     {
         try {
+            $credentials = new Credentials($this->aws_key, $this->aws_secret);
+            $provider = CredentialProvider::fromCredentials($credentials);
             $this->client = new SecretsManagerClient([
                 'version' => '2017-10-17',
                 'region' => config('aws-secrets-manager.region'),
+                'credentials' => $provider,
             ]);
 
             $secrets = $this->client->listSecrets([
@@ -140,6 +152,7 @@ class LaravelAwsSecretsManager
                         putenv("$key=$secret");
                         $this->storeToCache($key, $secret);
                     } else {
+                        
                         foreach ($secretValues as $key => $value) {
                             putenv("$key=$value");
                             $this->storeToCache($key, $value);
